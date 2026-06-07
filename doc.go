@@ -1,6 +1,6 @@
 // Package chainpulse provides a Go SDK for ChainPulse Query API,
 // webhook management, and webhook signature verification.
 //
-// Webhook POST bodies use createdAt/blockTime in YYYY-MM-DD HH:mm:ss (UTC).
-// ParseWebhookEvent relies on FlexTime; use v1.0.1 or later (v1.0.0 used time.Time and failed to parse).
+// Query API and Webhook payloads use timestamps in YYYY-MM-DD HH:mm:ss (UTC).
+// Models use FlexTime (also accepts RFC3339). Published v1.0.0/v1.0.1 used time.Time and failed to decode.
 package chainpulse

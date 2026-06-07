@@ -91,7 +91,13 @@ func (c *Client) do(ctx context.Context, baseURL string, method string, path str
 	if out == nil || len(bytes.TrimSpace(data)) == 0 {
 		return nil
 	}
-	return json.Unmarshal(data, out)
+	if err := json.Unmarshal(data, out); err != nil {
+		if strings.Contains(err.Error(), `cannot parse "`) && strings.Contains(err.Error(), `as "2006-01-02T15:04:05Z07:00"`) {
+			return fmt.Errorf("decode response: %w (API timestamps use YYYY-MM-DD HH:mm:ss; upgrade chainpulse to v1.0.2+)", err)
+		}
+		return fmt.Errorf("decode response: %w", err)
+	}
+	return nil
 }
 
 func SignRequest(secret string, method string, pathWithQuery string, timestamp string, nonce string) string {

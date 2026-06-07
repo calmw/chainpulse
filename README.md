@@ -25,6 +25,8 @@ go get github.com/calmw/chainpulse
 
 ## Query API
 
+Query responses format timestamps as `YYYY-MM-DD HH:mm:ss` (UTC). SDK models use `FlexTime` for `blockTime`, `updatedAt`, and webhook `createdAt`. **Requires v1.0.2+** (or this repo's `sdk/golang`); v1.0.0/v1.0.1 used `time.Time` and failed to decode Query/Webhook payloads.
+
 Query service uses HMAC headers:
 
 - `X-API-Key`
