@@ -19,6 +19,7 @@ go get github.com/calmw/chainpulse
 ├── errors.go          # APIError
 └── examples/
     ├── query/
+    ├── create_webhook/
     └── webhook_receiver/
 ```
 
@@ -98,13 +99,23 @@ fmt.Println(created.WebhookID, created.Secret)
 
 ## Examples
 
-Query a transaction:
+See [examples/README.md](examples/README.md) for the full integration walkthrough.
+
+Query address balances:
 
 ```bash
 cd examples/query
 CHAINPULSE_API_KEY=ck_live_xxx \
 CHAINPULSE_API_SECRET=sk_live_xxx \
-CHAINPULSE_TX_HASH=0x... \
+go run .
+```
+
+Create a webhook subscription:
+
+```bash
+cd examples/create_webhook
+CHAINPULSE_BEARER_TOKEN=user_jwt_token \
+CHAINPULSE_WEBHOOK_URL=https://your-service.example.com/webhook \
 go run .
 ```
 
@@ -143,6 +154,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	event, err := chainpulse.ParseWebhookEvent(body)
 	if err != nil {
+		// Platform timestamps use YYYY-MM-DD HH:mm:ss; use chainpulse >= v1.0.1 (FlexTime).
 		http.Error(w, "invalid payload", http.StatusBadRequest)
 		return
 	}

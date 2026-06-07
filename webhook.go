@@ -1,11 +1,13 @@
 package chainpulse
 
 import (
+	"bytes"
 	"context"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -48,10 +50,21 @@ func (c *Client) DeleteWebhook(ctx context.Context, webhookID string) (MessageRe
 	return out, err
 }
 
+// ParseWebhookEvent decodes a webhook POST body from ChainPulse.
+// Top-level createdAt and blockTime use YYYY-MM-DD HH:mm:ss (UTC); FlexTime also accepts RFC3339.
 func ParseWebhookEvent(body []byte) (WebhookEvent, error) {
+	body = bytes.TrimSpace(body)
+	if len(body) == 0 {
+		return WebhookEvent{}, fmt.Errorf("empty webhook body")
+	}
 	var event WebhookEvent
-	err := json.Unmarshal(body, &event)
-	return event, err
+	if err := json.Unmarshal(body, &event); err != nil {
+		return WebhookEvent{}, fmt.Errorf("decode webhook event: %w", err)
+	}
+	if event.Payload == nil {
+		event.Payload = map[string]any{}
+	}
+	return event, nil
 }
 
 func VerifyWebhookSignature(secret string, timestamp string, body []byte, signature string, tolerance time.Duration) bool {
